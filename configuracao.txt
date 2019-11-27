@@ -1,0 +1,6 @@
+localhost
+E:\omega\DBA\SOARES_new.GDB
+VAR
+Etiqueta Varejo
+Impressora - Argox
+\\localhost\Argox
