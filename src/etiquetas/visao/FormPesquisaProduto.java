@@ -20,7 +20,6 @@ public class FormPesquisaProduto extends javax.swing.JDialog {
     private final ProdutoControle produtoControle;
     private boolean sai = false;
     private final String[] colunas = {"Referencia", "Descrição", "Codigo Barras", "Preço", "Preço Atacado"};
-    private String empresa;
     String referencia;
 
     public FormPesquisaProduto(java.awt.Frame parent, boolean modal) {
@@ -34,12 +33,20 @@ public class FormPesquisaProduto extends javax.swing.JDialog {
     private void adicionarTeclasDeAtalhos() {
         InputMap inputMap = this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
         inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0),"forward");
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),"ESCAPE");
         this.getRootPane().setInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW, inputMap);
         this.getRootPane().getActionMap().put("forward", new AbstractAction(){
             private static final long serialVersionUID = 1L;
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 FormPesquisaProduto.this.editPesquisa.requestFocus();
+            }
+        });
+        this.getRootPane().getActionMap().put("ESCAPE", new AbstractAction(){
+            private static final long serialVersionUID = 1L;
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                FormPesquisaProduto.this.dispose();
             }
         });
     }
@@ -197,10 +204,6 @@ public class FormPesquisaProduto extends javax.swing.JDialog {
         Produto produto = this.produtoControle.buscarProduto(this.referencia);
         this.sai = false;
         return produto;
-    }
-
-    public void setEmpresa(String empresa) {
-        this.empresa = empresa;
     }
 
     public static void main(String args[]) {

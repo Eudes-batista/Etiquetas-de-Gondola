@@ -45,7 +45,6 @@ public class FormCriarEtiquetas extends javax.swing.JFrame {
         this.editProduto.setDocument(new FieldToUpperCase());
         this.editQuantidade.setDocument(new FieldToNumber());
         this.editProduto.requestFocus();
-        this.listarEmpresas();
         try {
             this.arquivoControle = new ArquivoControle();
             this.configuracao = this.arquivoControle.lerArquivo();
@@ -70,6 +69,7 @@ public class FormCriarEtiquetas extends javax.swing.JFrame {
     private void adicionarTeclasDeAtalhos() {
         InputMap inputMap = this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
         inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0), "forward");
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "ESCAPE");
         this.getRootPane().setInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW, inputMap);
         this.getRootPane().getActionMap().put("forward", new AbstractAction() {
             private static final long serialVersionUID = 1L;
@@ -79,12 +79,17 @@ public class FormCriarEtiquetas extends javax.swing.JFrame {
                 FormCriarEtiquetas.this.abrirPesquisaDeProduto();
             }
         });
+        this.getRootPane().getActionMap().put("ESCAPE", new AbstractAction() {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                FormCriarEtiquetas.this.dispose();
+            }
+        });
     }
 
     private void listarInformacoesPadroes() {
-        if (this.configuracao.getEmpresa() != null) {
-            this.comboEmpresas.setSelectedItem(this.configuracao.getEmpresa());
-        }
         if (this.configuracao.getTipoEtiqueta() != null) {
             this.comboTipoEtiqueta.setSelectedItem(this.configuracao.getTipoEtiqueta());
         }
@@ -113,7 +118,6 @@ public class FormCriarEtiquetas extends javax.swing.JFrame {
         btImprimirSimples = new javax.swing.JButton();
         btApagarSelecionado = new javax.swing.JButton();
         btLimpar = new javax.swing.JButton();
-        comboEmpresas = new javax.swing.JComboBox<>();
         comboTipoEtiqueta = new javax.swing.JComboBox<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -207,14 +211,8 @@ public class FormCriarEtiquetas extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(jLabelProduto)
-                                        .addGap(0, 0, Short.MAX_VALUE))
-                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                        .addGap(0, 200, Short.MAX_VALUE)
-                                        .addComponent(comboEmpresas, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabelProduto)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 249, Short.MAX_VALUE)
                                 .addComponent(comboTipoEtiqueta, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(75, 75, 75))
                             .addComponent(editProduto))
@@ -248,8 +246,7 @@ public class FormCriarEtiquetas extends javax.swing.JFrame {
                     .addComponent(jLabel1)
                     .addComponent(jComboBoxModeloImpressora, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(editCaminhoImpressora, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(comboTipoEtiqueta, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(comboEmpresas, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(comboTipoEtiqueta, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabelProduto)
@@ -266,7 +263,7 @@ public class FormCriarEtiquetas extends javax.swing.JFrame {
                     .addComponent(btImprimirSimples)
                     .addComponent(btApagarSelecionado)
                     .addComponent(btLimpar))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(26, Short.MAX_VALUE))
         );
 
         setSize(new java.awt.Dimension(778, 565));
@@ -292,7 +289,6 @@ public class FormCriarEtiquetas extends javax.swing.JFrame {
     private void abrirPesquisaDeProduto() {
         FormPesquisaProduto formPesquisaProduto = new FormPesquisaProduto(this, true);
         formPesquisaProduto.setPesquisa(this.editProduto.getText());
-        formPesquisaProduto.setEmpresa("" + comboEmpresas.getSelectedItem());
         formPesquisaProduto.setVisible(true);
         setProduto(formPesquisaProduto.getProduto());
     }
@@ -363,7 +359,6 @@ public class FormCriarEtiquetas extends javax.swing.JFrame {
 
     private void salvarTipoDeEtiqueta() {
         try {
-            configuracao.setEmpresa(this.comboEmpresas.getSelectedItem().toString());
             configuracao.setTipoEtiqueta(this.comboTipoEtiqueta.getSelectedItem().toString());
             configuracao.setImpressora(this.jComboBoxModeloImpressora.getSelectedItem().toString());
             configuracao.setCompartilhamentoImpressora(this.editCaminhoImpressora.getText());
@@ -469,11 +464,6 @@ public class FormCriarEtiquetas extends javax.swing.JFrame {
         this.tabela.getColumnModel().getColumn(2).setCellRenderer(quantidadeCellRenderer);
     }
 
-    private void listarEmpresas() {
-        List<String> empresas = this.produtoControle.listarEmpresas();
-        empresas.forEach(this.comboEmpresas::addItem);
-    }
-
     private void limparCampos() {
         this.jLabelProduto.setText("");
         this.editProduto.setText("");
@@ -511,7 +501,6 @@ public class FormCriarEtiquetas extends javax.swing.JFrame {
     private javax.swing.JButton btApagarSelecionado;
     private javax.swing.JButton btImprimirSimples;
     private javax.swing.JButton btLimpar;
-    private javax.swing.JComboBox<String> comboEmpresas;
     private javax.swing.JComboBox<String> comboTipoEtiqueta;
     private javax.swing.JTextField editCaminhoImpressora;
     private javax.swing.JTextField editProduto;
