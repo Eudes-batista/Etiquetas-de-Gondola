@@ -84,7 +84,7 @@ public class FormCriarEtiquetas extends javax.swing.JFrame {
 
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                FormCriarEtiquetas.this.dispose();
+                System.exit(0);
             }
         });
     }
