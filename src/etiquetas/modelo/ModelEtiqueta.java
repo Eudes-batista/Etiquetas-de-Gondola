@@ -5,8 +5,8 @@ import javax.swing.table.AbstractTableModel;
 
 public class ModelEtiqueta extends AbstractTableModel{
 
-    private String[] colunas;
-    private List<Produto> produtos;
+    private final String[] colunas;
+    private final List<Produto> produtos;
 
     public ModelEtiqueta(String[] colunas, List<Produto> produtos) {
         this.colunas = colunas;

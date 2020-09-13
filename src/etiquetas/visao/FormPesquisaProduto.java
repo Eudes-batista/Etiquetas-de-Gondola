@@ -4,9 +4,14 @@ import etiquetas.controle.ProdutoControle;
 import etiquetas.modelo.FieldToUpperCase;
 import etiquetas.modelo.ModelPesquisa;
 import etiquetas.modelo.Produto;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.util.List;
+import javax.swing.AbstractAction;
+import javax.swing.InputMap;
+import javax.swing.JComponent;
 import javax.swing.JTable;
+import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 
@@ -21,8 +26,22 @@ public class FormPesquisaProduto extends javax.swing.JDialog {
     public FormPesquisaProduto(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
-        editPesquisa.setDocument(new FieldToUpperCase());
-        produtoControle = new ProdutoControle();
+        this.editPesquisa.setDocument(new FieldToUpperCase());
+        this.produtoControle = new ProdutoControle();
+        this.adicionarTeclasDeAtalhos();
+    }
+
+    private void adicionarTeclasDeAtalhos() {
+        InputMap inputMap = this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0),"forward");
+        this.getRootPane().setInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW, inputMap);
+        this.getRootPane().getActionMap().put("forward", new AbstractAction(){
+            private static final long serialVersionUID = 1L;
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                FormPesquisaProduto.this.editPesquisa.requestFocus();
+            }
+        });
     }
 
     @SuppressWarnings("unchecked")
@@ -105,17 +124,25 @@ public class FormPesquisaProduto extends javax.swing.JDialog {
 
 
     private void editPesquisaKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_editPesquisaKeyPressed
-        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-            preencherTabela();
-        } else if (evt.getKeyCode() == KeyEvent.VK_DOWN) {
-            this.tabela.requestFocus();
+        switch (evt.getKeyCode()) {
+            case KeyEvent.VK_ENTER:
+                if(this.editPesquisa.getText().trim().isEmpty()){
+                    return;
+                }
+                this.preencherTabela();
+                break;
+            case KeyEvent.VK_DOWN:
+                this.tabela.requestFocus();
+                break;
+            default:
+                break;
         }
     }//GEN-LAST:event_editPesquisaKeyPressed
 
     private void tabelaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabelaMouseClicked
         if (evt.getClickCount() == 2) {
-            if (selecionarReferencia()) return;
-            dispose();
+            if (this.selecionarReferencia()) return;
+            this.dispose();
         }
     }//GEN-LAST:event_tabelaMouseClicked
 
@@ -146,7 +173,7 @@ public class FormPesquisaProduto extends javax.swing.JDialog {
     }//GEN-LAST:event_formWindowOpened
 
     private void preencherTabela() {
-        List<Produto> produtos = produtoControle.listarProdutos(this.editPesquisa.getText().toUpperCase(), this.empresa);
+        List<Produto> produtos = this.produtoControle.listarProdutos(this.editPesquisa.getText().toUpperCase());
         ModelPesquisa modelPesquisa = new ModelPesquisa(colunas, produtos);
         this.tabela.setModel(modelPesquisa);
         this.tabela.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
@@ -167,7 +194,7 @@ public class FormPesquisaProduto extends javax.swing.JDialog {
 
     public Produto getProduto() {
         if("".equals(this.referencia)) return null;
-        Produto produto = this.produtoControle.buscarProduto(this.referencia, this.empresa);
+        Produto produto = this.produtoControle.buscarProduto(this.referencia);
         this.sai = false;
         return produto;
     }

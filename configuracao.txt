@@ -1,6 +1,6 @@
 localhost
-E:\omega\DBA\SOARES_new.GDB
-VAR
-Etiqueta Varejo
-Impressora - Argox
-\\localhost\Argox
+/home/administrador/Downloads/bancos/porto-mix-rest.FDB
+null
+null
+null
+null

@@ -29,7 +29,7 @@ public class ProdutoControle {
         }
     }
 
-    public List<Produto> listarProdutos(String pesquisa,String empresa) {
+    public List<Produto> listarProdutos(String pesquisa) {
         try {
             Configuracao configuracao = arquivoControle.lerArquivo();
             if (configuracao.getHost() == null) {
@@ -39,9 +39,7 @@ public class ProdutoControle {
             if (!this.conecta.conexao(host, caminho)) {
                 return Arrays.asList();
             }
-            String sql = "select first 10 \n" + "  PRREFERE as PRREFERE\n" + " ,PRDESCRI as PRDESCRI\n" + " ,EEPLQTB1 as EEPLQTB1\n" + " ,PRCODBAR as PRCODBAR\n" + " ,EET2PVD1 as EET2PVD1\n" + " ,PRQTDATA as PRQTDATA\n" + "from \n" + "  scea07 \n" + "inner join \n" + "  scea01 on(PRREFERE=EEREFERE and EECODEMP='"+empresa+"') \n" + "where \n"
-                    + "  PRDESCRI like '%" + pesquisa + "%' or PRREFERE='" + pesquisa + "' or PRCODBAR='" + pesquisa + "'\n order by PRDESCRI";
-            if (!conecta.executaSQL(sql)) {
+            if (!conecta.executaSQL(this.montarSqlDePesquisaDeProduto(pesquisa))) {
                 return Arrays.asList();
             }
             try {
@@ -51,12 +49,12 @@ public class ProdutoControle {
                 }
                 produtos.clear();
                 do {
-                    String referencia = this.conecta.getRs().getString("PRREFERE");
-                    String nome = this.conecta.getRs().getString("PRDESCRI");
-                    String codigoBarra = this.conecta.getRs().getString("PRCODBAR");
-                    double precoVarejo = this.conecta.getRs().getDouble("EEPLQTB1");
-                    double precoAtacado = this.conecta.getRs().getDouble("EET2PVD1");
-                    String quantidadeAtacado = this.conecta.getRs().getString("PRQTDATA");
+                    String referencia = this.conecta.getRs().getString("referencia");
+                    String nome = this.conecta.getRs().getString("descricao");
+                    String codigoBarra = this.conecta.getRs().getString("codigo_barra");
+                    double precoVarejo = this.conecta.getRs().getDouble("preco");
+                    double precoAtacado = this.conecta.getRs().getDouble("preco_atacado");
+                    String quantidadeAtacado = this.conecta.getRs().getString("quantidade_atacado");
                     Produto produto = new Produto(referencia, nome, codigoBarra, decimalFormat.format(precoVarejo), decimalFormat.format(precoAtacado), quantidadeAtacado);
                     produto.setQuantidadeAserImpresso("1");
                     this.produtos.add(produto);
@@ -103,10 +101,10 @@ public class ProdutoControle {
         return empresas;
     }
 
-    public Produto buscarProduto(String pesquisa,String empresa) {
+    public Produto buscarProduto(String pesquisa) {
         Produto produto = new Produto();
         try {
-           Configuracao configuracao = arquivoControle.lerArquivo();
+            Configuracao configuracao = arquivoControle.lerArquivo();
             if (configuracao.getHost() == null) {
                 return null;
             }
@@ -114,21 +112,19 @@ public class ProdutoControle {
             if (!this.conecta.conexao(host, caminho)) {
                 return null;
             }
-            String sql = "select first 1 \n" + "  PRREFERE as PRREFERE\n" + " ,PRDESCRI as PRDESCRI\n" + " ,EEPLQTB1 as EEPLQTB1\n" + " ,PRCODBAR as PRCODBAR\n" + " ,EET2PVD1 as EET2PVD1\n" + " ,PRQTDATA as PRQTDATA\n" + "from \n" + "  scea07 \n" + "inner join \n" + "  scea01 on(PRREFERE=EEREFERE and eecodemp='"+empresa+"') \n" + "where \n"
-                    + "  PRREFERE='" + pesquisa + "' or PRCODBAR='" + pesquisa + "'\n order by PRDESCRI";
-            if (!this.conecta.executaSQL(sql)) {
+            if (!this.conecta.executaSQL(this.montarSqlDePesquisaDeProdutoApenasPorReferencia(pesquisa))) {
                 return null;
             }
             try {
                 if (!this.conecta.getRs().first()) {
                     return null;
                 }
-                String referencia = this.conecta.getRs().getString("PRREFERE");
-                String nome = this.conecta.getRs().getString("PRDESCRI");
-                String codigoBarra = this.conecta.getRs().getString("PRCODBAR");
-                double precoVarejo = this.conecta.getRs().getDouble("EEPLQTB1");
-                double precoAtacado = this.conecta.getRs().getDouble("EET2PVD1");
-                String quantidadeAtacado = this.conecta.getRs().getString("PRQTDATA");
+                String referencia = this.conecta.getRs().getString("referencia");
+                String nome = this.conecta.getRs().getString("descricao");
+                String codigoBarra = this.conecta.getRs().getString("codigo_barra");
+                double precoVarejo = this.conecta.getRs().getDouble("preco");
+                double precoAtacado = this.conecta.getRs().getDouble("preco_atacado");
+                String quantidadeAtacado = this.conecta.getRs().getString("quantidade_atacado");
                 produto.setReferencia(referencia);
                 produto.setNome(nome);
                 produto.setBarras(codigoBarra);
@@ -144,6 +140,76 @@ public class ProdutoControle {
             JOptionPane.showMessageDialog(null, "Erro ao ler o arquivo.");
         }
         return produto;
+    }
+
+    private String montarSqlDePesquisaDeProduto(String pesquisa) {
+        String sql = "select \n"
+                + "  first 50 \n"
+                + "  PRREFERE as referencia\n"
+                + " ,MAX(PRDESCRI) as descricao\n"
+                + " ,MAX(EEPLQTB1) as preco\n"
+                + " ,MAX(PRCODBAR) as codigo_barra\n"
+                + " ,MAX(EET2PVD1) as preco_atacado\n"
+                + " ,MAX(PRQTDATA) as quantidade_atacado\n"
+                + "from \n"
+                + "  scea07 \n"
+                + "inner join\n"
+                + "  scea01 on(PRREFERE=EEREFERE) \n"
+                + "left outer join\n"
+                + "  scea09 on(RAREFERE=EEREFERE)\n"
+                + "where \n"
+                + "   PRDATCAN is null\n";
+        sql += this.adicionarCondicao(pesquisa);
+        sql += "group by\n"
+                + "   referencia\n"
+                + "order by \n"
+                + "   descricao";
+        return sql;
+    }
+
+    private String montarSqlDePesquisaDeProdutoApenasPorReferencia(String pesquisa) {
+        String sql = "select \n"
+                + "  first 1 \n"
+                + "  PRREFERE as referencia\n"
+                + " ,MAX(PRDESCRI) as descricao\n"
+                + " ,MAX(EEPLQTB1) as preco\n"
+                + " ,MAX(PRCODBAR) as codigo_barra\n"
+                + " ,MAX(EET2PVD1) as preco_atacado\n"
+                + " ,MAX(PRQTDATA) as quantidade_atacado\n"
+                + "from \n"
+                + "  scea07 \n"
+                + "inner join \n"
+                + "  scea01 on(PRREFERE=EEREFERE) \n"
+                + "left outer join\n"
+                + "  scea09 on(RAREFERE=EEREFERE)\n"
+                + "where \n"
+                + "   PRDATCAN is NULL\n"
+                + "AND\n"
+                + "(\n"
+                + "   PRREFERE='" + pesquisa + "' \n"
+                + "or PRCODBAR='" + pesquisa + "' \n"
+                + "or RAREFAUX='" + pesquisa + "' \n"
+                + ")\n"
+                + " group by \n"
+                + "   referencia\n"
+                + " order by \n"
+                + "   descricao";
+        return sql;
+    }
+
+    private String adicionarCondicao(String pesquisa) {
+        String palavras[] = pesquisa.split(" ");
+        String condicao = "";
+        for (String palavra : palavras) {
+            condicao += "AND (\n"
+                    + "   PRDESCRI like '%" + palavra + "%' \n"
+                    + "or PRAPLICA like '%" + palavra + "%'\n"
+                    + "or PRREFERE='" + palavra + "' \n"
+                    + "or PRCODBAR='" + palavra + "'\n"
+                    + "or RAREFAUX='" + palavra + "'\n"
+                    + ")\n";
+        }
+        return condicao;
     }
 
 }

@@ -10,14 +10,19 @@ import etiquetas.modelo.Configuracao;
 import etiquetas.modelo.FieldToUpperCase;
 import etiquetas.modelo.ModelEtiqueta;
 import etiquetas.modelo.Produto;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.AbstractAction;
+import javax.swing.InputMap;
+import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
+import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.text.AttributeSet;
@@ -59,17 +64,36 @@ public class FormCriarEtiquetas extends javax.swing.JFrame {
                 editProduto.requestFocus();
             }
         }.start();
+        this.adicionarTeclasDeAtalhos();
+    }
+
+    private void adicionarTeclasDeAtalhos() {
+        InputMap inputMap = this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0), "forward");
+        this.getRootPane().setInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW, inputMap);
+        this.getRootPane().getActionMap().put("forward", new AbstractAction() {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                FormCriarEtiquetas.this.abrirPesquisaDeProduto();
+            }
+        });
     }
 
     private void listarInformacoesPadroes() {
-        if(this.configuracao.getEmpresa() != null)
+        if (this.configuracao.getEmpresa() != null) {
             this.comboEmpresas.setSelectedItem(this.configuracao.getEmpresa());
-        if(this.configuracao.getTipoEtiqueta() != null)
+        }
+        if (this.configuracao.getTipoEtiqueta() != null) {
             this.comboTipoEtiqueta.setSelectedItem(this.configuracao.getTipoEtiqueta());
-        if(this.configuracao.getImpressora() != null)
+        }
+        if (this.configuracao.getImpressora() != null) {
             this.jComboBoxModeloImpressora.setSelectedItem(this.configuracao.getImpressora());
-        if(this.configuracao.getCompartilhamentoImpressora() != null)
+        }
+        if (this.configuracao.getCompartilhamentoImpressora() != null) {
             this.editCaminhoImpressora.setText(this.configuracao.getCompartilhamentoImpressora());
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -250,22 +274,28 @@ public class FormCriarEtiquetas extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void editProdutoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editProdutoActionPerformed
-        String empresa = String.valueOf(this.comboEmpresas.getSelectedItem());
-        Produto produto = produtoControle.buscarProduto(this.editProduto.getText(), empresa);
-        if (produto == null) {
-            FormPesquisaProduto formPesquisaProduto = new FormPesquisaProduto(this, true);
-            formPesquisaProduto.setPesquisa(this.editProduto.getText());
-            formPesquisaProduto.setEmpresa("" + comboEmpresas.getSelectedItem());
-            formPesquisaProduto.setVisible(true);
-            setProduto(formPesquisaProduto.getProduto());
+        if (this.editProduto.getText().trim().isEmpty()) {
             return;
         }
-        this.produto = produto;
+        Produto produtoEncontrado = this.produtoControle.buscarProduto(this.editProduto.getText());
+        if (produtoEncontrado == null) {
+            this.abrirPesquisaDeProduto();
+            return;
+        }
+        this.produto = produtoEncontrado;
         jLabelProduto.setText(produto.getNome());
         editQuantidade.requestFocus();
         editQuantidade.setText("1");
         editQuantidade.selectAll();
     }//GEN-LAST:event_editProdutoActionPerformed
+
+    private void abrirPesquisaDeProduto() {
+        FormPesquisaProduto formPesquisaProduto = new FormPesquisaProduto(this, true);
+        formPesquisaProduto.setPesquisa(this.editProduto.getText());
+        formPesquisaProduto.setEmpresa("" + comboEmpresas.getSelectedItem());
+        formPesquisaProduto.setVisible(true);
+        setProduto(formPesquisaProduto.getProduto());
+    }
 
     private void editCaminhoImpressoraMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_editCaminhoImpressoraMouseClicked
         if (evt.getClickCount() == 2) {
@@ -312,9 +342,9 @@ public class FormCriarEtiquetas extends javax.swing.JFrame {
     }//GEN-LAST:event_btLimparActionPerformed
 
     private void imprimir() {
-        if(this.jComboBoxModeloImpressora.getSelectedIndex() == 0){
+        if (this.jComboBoxModeloImpressora.getSelectedIndex() == 0) {
             this.impressora = new Elgin();
-        }else{
+        } else {
             this.impressora = new Argox();
         }
         salvarTipoDeEtiqueta();
@@ -331,7 +361,7 @@ public class FormCriarEtiquetas extends javax.swing.JFrame {
         }
     }
 
-    private void salvarTipoDeEtiqueta() {        
+    private void salvarTipoDeEtiqueta() {
         try {
             configuracao.setEmpresa(this.comboEmpresas.getSelectedItem().toString());
             configuracao.setTipoEtiqueta(this.comboTipoEtiqueta.getSelectedItem().toString());
@@ -394,7 +424,7 @@ public class FormCriarEtiquetas extends javax.swing.JFrame {
             this.editProduto.requestFocus();
             return;
         }
-        if(this.editQuantidade.getText().length() >= 12){
+        if (this.editQuantidade.getText().length() >= 12) {
             JOptionPane.showMessageDialog(null, "Quantidade maior que o permitido");
             this.editQuantidade.requestFocus();
             this.editQuantidade.selectAll();
@@ -402,7 +432,7 @@ public class FormCriarEtiquetas extends javax.swing.JFrame {
         }
         enabledButtons();
         this.produto.setQuantidadeAserImpresso(this.editQuantidade.getText());
-        String nome = produto.getNome().length() > 25 ? produto.getNome().substring(0,25): produto.getNome();
+        String nome = produto.getNome().length() > 25 ? produto.getNome().substring(0, 25) : produto.getNome();
         this.produto.setNome(nome);
         this.produtos.add(produto);
         this.limparCampos();
