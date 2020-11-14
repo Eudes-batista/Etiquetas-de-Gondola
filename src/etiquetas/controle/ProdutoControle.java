@@ -191,9 +191,7 @@ public class ProdutoControle {
                 + "or RAREFAUX='" + pesquisa + "' \n"
                 + ")\n"
                 + " group by \n"
-                + "   referencia\n"
-                + " order by \n"
-                + "   descricao";
+                + "   referencia\n";
         return sql;
     }
 
