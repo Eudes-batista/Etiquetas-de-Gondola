@@ -3,6 +3,7 @@ package tiquetas.teste;
 import etiquetas.controle.ImpressaoControle;
 import etiquetas.modelo.Produto;
 import java.io.IOException;
+import javax.print.PrintException;
 
 public class TesteTresColunasEtiqueta {
 
@@ -15,7 +16,7 @@ public class TesteTresColunasEtiqueta {
     private static final String CONFIGURA_ESPACO_ENTRE_AS_ETIQUETAS = "JF";
     private static final String INICIA_IMPRESSAO_A_PARTIR_DO_TOPO = "ZB"; //indica que a impressão deve inciar a partir do topo, ou seja, de cabeça para baixo ZT) para cima ZB     
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, PrintException {
 
         Produto produtoSimple = new Produto();
                     produtoSimple.setReferencia("250");
@@ -30,7 +31,7 @@ public class TesteTresColunasEtiqueta {
             ImpressaoControle impressao = new ImpressaoControle();
 
             String gondolaSimples = gerarEtiquetaGondolaSimples(produtoSimple);
-            impressao.imprimirEtiqueta("\\\\localhost\\l42", gondolaSimples);
+            impressao.imprimirEtiqueta(gondolaSimples);
 
     }
 

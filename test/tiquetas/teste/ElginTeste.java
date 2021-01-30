@@ -5,10 +5,11 @@ import etiquetas.controle.ImpressaoControle;
 import etiquetas.controle.impressora.Impressora;
 import etiquetas.modelo.Produto;
 import java.io.IOException;
+import javax.print.PrintException;
 
 public class ElginTeste {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, PrintException {
 
         ImpressaoControle impressao = new ImpressaoControle();
 
@@ -19,7 +20,7 @@ public class ElginTeste {
 
     }
 
-    public static void impressaoEtiquetaSimples(ImpressaoControle impressao, Impressora impressora) throws IOException {
+    public static void impressaoEtiquetaSimples(ImpressaoControle impressao, Impressora impressora) throws IOException, PrintException {
         Produto produtoSimple = new Produto();
 
         produtoSimple.setReferencia("7896496980826");
@@ -28,10 +29,10 @@ public class ElginTeste {
         produtoSimple.setPrecoVarejo("6,99");
 
         String gondolaSimples = impressora.gerarEtiquetaGondolaSimples(produtoSimple);
-        impressao.imprimirEtiqueta("\\\\localhost\\l42", gondolaSimples);
+        impressao.imprimirEtiqueta(gondolaSimples);
     }
 
-    public static void impressaoEtiquetaAtacado(ImpressaoControle impressao, Impressora impressora) throws IOException {
+    public static void impressaoEtiquetaAtacado(ImpressaoControle impressao, Impressora impressora) throws IOException, PrintException {
         Produto produtoAtacado = new Produto();
 
         produtoAtacado.setReferencia("7896496980826");
@@ -42,7 +43,7 @@ public class ElginTeste {
         produtoAtacado.setQuantidadeAtacado("5");
 
         String gondolaAtcado = impressora.gerarEtiquetaGondolaAtacado(produtoAtacado);
-        impressao.imprimirEtiqueta("\\\\localhost\\l42", gondolaAtcado);
+        impressao.imprimirEtiqueta(gondolaAtcado);
     }
 
 }

@@ -17,7 +17,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.print.PrintException;
+import javax.print.PrintService;
+import javax.print.PrintServiceLookup;
 import javax.swing.AbstractAction;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
@@ -64,6 +68,7 @@ public class FormCriarEtiquetas extends javax.swing.JFrame {
             }
         }.start();
         this.adicionarTeclasDeAtalhos();
+        this.listarImpressoras();
     }
 
     private void adicionarTeclasDeAtalhos() {
@@ -97,7 +102,7 @@ public class FormCriarEtiquetas extends javax.swing.JFrame {
             this.jComboBoxModeloImpressora.setSelectedItem(this.configuracao.getImpressora());
         }
         if (this.configuracao.getCompartilhamentoImpressora() != null) {
-            this.editCaminhoImpressora.setText(this.configuracao.getCompartilhamentoImpressora());
+            this.jComboBoxImpressoras.setSelectedItem(this.configuracao.getCompartilhamentoImpressora());
         }
     }
 
@@ -107,7 +112,6 @@ public class FormCriarEtiquetas extends javax.swing.JFrame {
 
         jLabel1 = new javax.swing.JLabel();
         jComboBoxModeloImpressora = new javax.swing.JComboBox<>();
-        editCaminhoImpressora = new javax.swing.JTextField();
         jLabelProduto = new javax.swing.JLabel();
         editProduto = new javax.swing.JTextField();
         jLabel3 = new javax.swing.JLabel();
@@ -119,6 +123,7 @@ public class FormCriarEtiquetas extends javax.swing.JFrame {
         btApagarSelecionado = new javax.swing.JButton();
         btLimpar = new javax.swing.JButton();
         comboTipoEtiqueta = new javax.swing.JComboBox<>();
+        jComboBoxImpressoras = new javax.swing.JComboBox<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setResizable(false);
@@ -127,14 +132,6 @@ public class FormCriarEtiquetas extends javax.swing.JFrame {
         jLabel1.setText("Etiquetas");
 
         jComboBoxModeloImpressora.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Impressora - Elgin-L42", "Impressora - Argox" }));
-
-        editCaminhoImpressora.setText("\\\\localhost\\l42");
-        editCaminhoImpressora.setEnabled(false);
-        editCaminhoImpressora.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                editCaminhoImpressoraMouseClicked(evt);
-            }
-        });
 
         jLabelProduto.setText("Produto");
 
@@ -200,6 +197,8 @@ public class FormCriarEtiquetas extends javax.swing.JFrame {
 
         comboTipoEtiqueta.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Etiqueta Gondola", "Etiqueta Varejo", "Etiqueta Atacado" }));
 
+        jComboBoxImpressoras.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Impressora - Elgin-L42", "Impressora - Argox" }));
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -212,9 +211,7 @@ public class FormCriarEtiquetas extends javax.swing.JFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jLabelProduto)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 249, Short.MAX_VALUE)
-                                .addComponent(comboTipoEtiqueta, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(75, 75, 75))
+                                .addGap(75, 475, Short.MAX_VALUE))
                             .addComponent(editProduto))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -224,18 +221,20 @@ public class FormCriarEtiquetas extends javax.swing.JFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(btAdicionar))))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jComboBoxModeloImpressora, javax.swing.GroupLayout.PREFERRED_SIZE, 172, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(editCaminhoImpressora, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
                         .addComponent(btImprimirSimples, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btApagarSelecionado, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btLimpar, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(comboTipoEtiqueta, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jComboBoxModeloImpressora, javax.swing.GroupLayout.PREFERRED_SIZE, 172, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jComboBoxImpressoras, javax.swing.GroupLayout.PREFERRED_SIZE, 157, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -245,9 +244,9 @@ public class FormCriarEtiquetas extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
                     .addComponent(jComboBoxModeloImpressora, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(editCaminhoImpressora, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(comboTipoEtiqueta, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addComponent(comboTipoEtiqueta, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jComboBoxImpressoras, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(32, 32, 32)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabelProduto)
                     .addComponent(jLabel3))
@@ -263,10 +262,10 @@ public class FormCriarEtiquetas extends javax.swing.JFrame {
                     .addComponent(btImprimirSimples)
                     .addComponent(btApagarSelecionado)
                     .addComponent(btLimpar))
-                .addContainerGap(26, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        setSize(new java.awt.Dimension(778, 565));
+        setSize(new java.awt.Dimension(778, 591));
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
@@ -292,16 +291,6 @@ public class FormCriarEtiquetas extends javax.swing.JFrame {
         formPesquisaProduto.setVisible(true);
         setProduto(formPesquisaProduto.getProduto());
     }
-
-    private void editCaminhoImpressoraMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_editCaminhoImpressoraMouseClicked
-        if (evt.getClickCount() == 2) {
-            if (!this.editCaminhoImpressora.isEnabled()) {
-                this.editCaminhoImpressora.setEnabled(true);
-                return;
-            }
-            this.editCaminhoImpressora.setEnabled(false);
-        }
-    }//GEN-LAST:event_editCaminhoImpressoraMouseClicked
 
     private void btAdicionarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btAdicionarActionPerformed
         adicionarProduto();
@@ -361,7 +350,7 @@ public class FormCriarEtiquetas extends javax.swing.JFrame {
         try {
             configuracao.setTipoEtiqueta(this.comboTipoEtiqueta.getSelectedItem().toString());
             configuracao.setImpressora(this.jComboBoxModeloImpressora.getSelectedItem().toString());
-            configuracao.setCompartilhamentoImpressora(this.editCaminhoImpressora.getText());
+            configuracao.setCompartilhamentoImpressora(this.jComboBoxImpressoras.getSelectedItem().toString());
             this.arquivoControle.escreverNoArquivo(this.configuracao);
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(null, "Erro ao salvar no arquivo");
@@ -370,12 +359,13 @@ public class FormCriarEtiquetas extends javax.swing.JFrame {
 
     private void imprimirEtiquetaGondola() {
         ImpressaoControle impressaoControle = new ImpressaoControle();
-        String caminhoDaImpressora = this.editCaminhoImpressora.getText();
+        String caminhoDaImpressora = this.jComboBoxImpressoras.getSelectedItem().toString();
+        impressaoControle.setImpressora(caminhoDaImpressora);
         for (Produto produto : this.produtos) {
             String gerarEtiquetaGondolaTresColunas = impressora.gerarEtiquetaGondolaTresColunas(produto);
             try {
-                impressaoControle.imprimirEtiqueta(caminhoDaImpressora, gerarEtiquetaGondolaTresColunas);
-            } catch (IOException ex) {
+                impressaoControle.imprimirEtiqueta(gerarEtiquetaGondolaTresColunas);
+            } catch (PrintException ex) {
                 JOptionPane.showMessageDialog(null, "Erro de comunicação com a impressora\n verifique se ela está ligada.");
                 break;
             }
@@ -385,12 +375,13 @@ public class FormCriarEtiquetas extends javax.swing.JFrame {
 
     private void imprimirEtiquetaVarejo() {
         ImpressaoControle impressaoControle = new ImpressaoControle();
-        String caminhoDaImpressora = this.editCaminhoImpressora.getText();
+        String caminhoDaImpressora = this.jComboBoxImpressoras.getSelectedItem().toString();
+        impressaoControle.setImpressora(caminhoDaImpressora);
         for (Produto produto : this.produtos) {
             String gerarEtiquetaGondolaSimples = impressora.gerarEtiquetaGondolaSimples(produto);
             try {
-                impressaoControle.imprimirEtiqueta(caminhoDaImpressora, gerarEtiquetaGondolaSimples);
-            } catch (IOException ex) {
+                impressaoControle.imprimirEtiqueta(gerarEtiquetaGondolaSimples);
+            } catch (PrintException ex) {
                 JOptionPane.showMessageDialog(null, "Erro de comunicação com a impressora\n verifique se ela está ligada.");
                 break;
             }
@@ -400,12 +391,13 @@ public class FormCriarEtiquetas extends javax.swing.JFrame {
 
     private void imprimirEtiquetaAtcado() {
         ImpressaoControle impressaoControle = new ImpressaoControle();
-        String caminhoDaImpressora = this.editCaminhoImpressora.getText();
+        String caminhoDaImpressora = this.jComboBoxImpressoras.getSelectedItem().toString();
+        impressaoControle.setImpressora(caminhoDaImpressora);
         for (Produto produto : this.produtos) {
             String gerarEtiquetaGondolaAtacado = impressora.gerarEtiquetaGondolaAtacado(produto);
             try {
-                impressaoControle.imprimirEtiqueta(caminhoDaImpressora, gerarEtiquetaGondolaAtacado);
-            } catch (IOException ex) {
+                impressaoControle.imprimirEtiqueta(gerarEtiquetaGondolaAtacado);
+            } catch (PrintException ex) {
                 JOptionPane.showMessageDialog(null, "Erro de comunicação com a impressora\n verifique se ela está ligada.");
                 break;
             }
@@ -482,6 +474,15 @@ public class FormCriarEtiquetas extends javax.swing.JFrame {
         this.produto = produto;
     }
 
+    private void listarImpressoras() {
+        DefaultComboBoxModel defaultComboBoxModel = new DefaultComboBoxModel();
+        PrintService[] lookupPrintServices = PrintServiceLookup.lookupPrintServices(null, null);
+        for (PrintService printService : lookupPrintServices) {
+            defaultComboBoxModel.addElement(printService.getName());
+        }
+        this.jComboBoxImpressoras.setModel(defaultComboBoxModel);
+    }
+
     public static void main(String args[]) {
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
@@ -502,9 +503,9 @@ public class FormCriarEtiquetas extends javax.swing.JFrame {
     private javax.swing.JButton btImprimirSimples;
     private javax.swing.JButton btLimpar;
     private javax.swing.JComboBox<String> comboTipoEtiqueta;
-    private javax.swing.JTextField editCaminhoImpressora;
     private javax.swing.JTextField editProduto;
     private javax.swing.JTextField editQuantidade;
+    private javax.swing.JComboBox<String> jComboBoxImpressoras;
     private javax.swing.JComboBox<String> jComboBoxModeloImpressora;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel3;
