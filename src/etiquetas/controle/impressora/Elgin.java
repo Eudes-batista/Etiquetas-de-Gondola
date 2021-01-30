@@ -1,6 +1,11 @@
 package etiquetas.controle.impressora;
 
 import etiquetas.modelo.Produto;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Elgin implements Impressora {
 
@@ -15,6 +20,24 @@ public class Elgin implements Impressora {
 
     @Override
     public String gerarEtiquetaGondolaSimples(Produto produto) {
+        Properties properties = new Properties();
+        try {
+            properties.load(new FileInputStream("alinha-mento.properties"));
+        } catch (IOException ex) {
+            System.err.println(ex.getMessage());
+        }
+        String colunaDescricao = properties.getProperty("elgin.etiqueta.varejo.descricao.coluna", "16");
+        String linhaDescricao = properties.getProperty("elgin.etiqueta.varejo.descricao.linha", "8");
+        String fonteDescricao = properties.getProperty("elgin.etiqueta.varejo.descricao.fonte", "4");
+        String colunaCifrao = properties.getProperty("elgin.etiqueta.varejo.cifrao.coluna", "400");
+        String linhaCifrao = properties.getProperty("elgin.etiqueta.varejo.cifrao.linha", "100");
+        String fonteCifrao = properties.getProperty("elgin.etiqueta.varejo.cifrao.fonte", "4");
+        String colunaValor = properties.getProperty("elgin.etiqueta.varejo.valor.coluna", "480");
+        String linhaValor = properties.getProperty("elgin.etiqueta.varejo.valor.linha", "100");
+        String fonteValor = properties.getProperty("elgin.etiqueta.varejo.valor.fonte", "5");
+        String colunaBarra = properties.getProperty("elgin.etiqueta.varejo.barra.coluna", "B16");
+        String linhaBarra = properties.getProperty("elgin.etiqueta.varejo.barra.linha", "112");
+
         String indentificacaoDoProduto = produto.getBarras() == null || "".equals(produto.getBarras()) ? produto.getReferencia() : produto.getBarras();
         String tipoDeCodigoBarra = produto.getReferencia().length() < 13 ? definirModeloDeCodigoBarraEAN128() : definirModeloDeCodigoBarraEAN13();
         StringBuilder comandosGondolaSimples = new StringBuilder();
@@ -23,19 +46,19 @@ public class Elgin implements Impressora {
         comandosGondolaSimples.append(VALOCIDADE_IMPRESSAO).append("\n");
         comandosGondolaSimples.append(CONFIGURA_ESPACO_ENTRE_AS_ETIQUETAS).append("\n");
         comandosGondolaSimples.append(INICIA_IMPRESSAO_A_PARTIR_DO_TOPO).append("\n");
-        comandosGondolaSimples.append("A").append(definirPosicaoDeColuna("16")).append(",").append(definirPosicaoDeLinha("8")).append(",").append("0").append(",").append(definirTamanhoDaFonte("4")).append(",1,1,N,\"").append(produto.getNome()).append("\"\n");
-        comandosGondolaSimples.append("A").append(definirPosicaoDeColuna("400")).append(",").append(definirPosicaoDeLinha("100")).append(",0,").append(definirTamanhoDaFonte("4")).append(",1,1,R,\"").append("R$").append("\"\n");
-        comandosGondolaSimples.append("A").append(definirPosicaoDeColuna("480")).append(",").append(definirPosicaoDeLinha("100")).append(",0,").append(definirTamanhoDaFonte("5")).append(",1,1,N,\"").append(produto.getPrecoVarejo()).append("\"\n");        
-        comandosGondolaSimples.append("B16,112,0,").append(tipoDeCodigoBarra)
+        comandosGondolaSimples.append("A").append(definirPosicaoDeColuna(colunaDescricao)).append(",").append(definirPosicaoDeLinha(linhaDescricao)).append(",").append("0").append(",").append(definirTamanhoDaFonte(fonteDescricao)).append(",1,1,N,\"").append(produto.getNome()).append("\"\n");
+        comandosGondolaSimples.append("A").append(definirPosicaoDeColuna(colunaCifrao)).append(",").append(definirPosicaoDeLinha(linhaCifrao)).append(",0,").append(definirTamanhoDaFonte(fonteCifrao)).append(",1,1,R,\"").append("R$").append("\"\n");
+        comandosGondolaSimples.append("A").append(definirPosicaoDeColuna(colunaValor)).append(",").append(definirPosicaoDeLinha(linhaValor)).append(",0,").append(definirTamanhoDaFonte(fonteValor)).append(",1,1,N,\"").append(produto.getPrecoVarejo()).append("\"\n");
+        comandosGondolaSimples.append(colunaBarra).append(",").append(linhaBarra).append(",0,").append(tipoDeCodigoBarra)
                 .append(",3,5,60,B,\"")
-                .append(indentificacaoDoProduto).append("\"\n");                                
+                .append(indentificacaoDoProduto).append("\"\n");
         comandosGondolaSimples.append("P").append(produto.getQuantidadeAserImpresso()).append("\n");
         return comandosGondolaSimples.toString();
     }
 
     @Override
     public String gerarEtiquetaGondolaAtacado(Produto produto) {
-        StringBuilder comandosGondolaAtacado = new StringBuilder();        
+        StringBuilder comandosGondolaAtacado = new StringBuilder();
         comandosGondolaAtacado.append(LIMPA_BUFFER_IMPRESSAO).append("\n");
         comandosGondolaAtacado.append(DENSIDADE_DA_CABECA_DE_IMPRESSAO).append("\n");
         comandosGondolaAtacado.append(VALOCIDADE_IMPRESSAO).append("\n");
@@ -49,8 +72,8 @@ public class Elgin implements Impressora {
         comandosGondolaAtacado.append("A360,50,0,").append(definirTamanhoDaFonte("4")).append(",1,1,R,\"").append("Atacado").append("\"\n");
         comandosGondolaAtacado.append("A400,100,0,").append(definirTamanhoDaFonte("4")).append(",1,1,N,\"").append("R$").append("\"\n");
         comandosGondolaAtacado.append("A480,124,0,").append(definirTamanhoDaFonte("5")).append(",1,1,R,\"").append(produto.getPrecoAtacado()).append("\"\n");
-        comandosGondolaAtacado.append("A464,180,0,").append(definirTamanhoDaFonte("3")).append(",1,1,R,\"").append("Apartir de ").append(produto.getQuantidadeAtacado()).append(" UND\"\n");        
-        comandosGondolaAtacado.append("LO350,30,5,180\n");       
+        comandosGondolaAtacado.append("A464,180,0,").append(definirTamanhoDaFonte("3")).append(",1,1,R,\"").append("Apartir de ").append(produto.getQuantidadeAtacado()).append(" UND\"\n");
+        comandosGondolaAtacado.append("LO350,30,5,180\n");
         comandosGondolaAtacado.append("P").append(produto.getQuantidadeAserImpresso()).append("\n");
         return comandosGondolaAtacado.toString();
     }

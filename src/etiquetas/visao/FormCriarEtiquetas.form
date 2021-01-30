@@ -34,7 +34,7 @@
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" attributes="0">
                               <Component id="jLabelProduto" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace min="75" pref="475" max="32767" attributes="0"/>
+                              <EmptySpace min="75" max="32767" attributes="0"/>
                           </Group>
                           <Component id="editProduto" max="32767" attributes="0"/>
                       </Group>
@@ -54,11 +54,11 @@
                       <Component id="btApagarSelecionado" min="-2" pref="155" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="btLimpar" min="-2" pref="102" max="-2" attributes="0"/>
-                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                      <EmptySpace max="32767" attributes="0"/>
                   </Group>
                   <Group type="102" attributes="0">
                       <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="32767" attributes="0"/>
+                      <EmptySpace pref="232" max="32767" attributes="0"/>
                       <Component id="comboTipoEtiqueta" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jComboBoxModeloImpressora" min="-2" pref="172" max="-2" attributes="0"/>
