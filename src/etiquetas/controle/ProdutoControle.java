@@ -40,10 +40,12 @@ public class ProdutoControle {
                 return Arrays.asList();
             }
             if (!conecta.executaSQL(this.montarSqlDePesquisaDeProduto(pesquisa))) {
+                this.conecta.desconecta();
                 return Arrays.asList();
             }
             try {
                 if (!conecta.getRs().first()) {
+                    this.conecta.desconecta();
                     JOptionPane.showMessageDialog(null, "Produto não existe.");
                     return Arrays.asList();
                 }
@@ -66,6 +68,7 @@ public class ProdutoControle {
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(null, "Erro ao ler o arquivo.");
         }
+        this.conecta.desconecta();
         return this.produtos;
     }
 
@@ -82,10 +85,12 @@ public class ProdutoControle {
             }
             String sql = "select LJCODEMP from LAPA19 order by LJCODEMP desc";
             if (!conecta.executaSQL(sql)) {
+                this.conecta.desconecta();
                 return Arrays.asList();
             }
             try {
                 if (!conecta.getRs().first()) {
+                    this.conecta.desconecta();
                     return Arrays.asList();
                 }
                 do {
@@ -98,6 +103,7 @@ public class ProdutoControle {
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(null, "Erro ao ler o arquivo.");
         }
+        this.conecta.desconecta();
         return empresas;
     }
 
@@ -113,10 +119,12 @@ public class ProdutoControle {
                 return null;
             }
             if (!this.conecta.executaSQL(this.montarSqlDePesquisaDeProdutoApenasPorReferencia(pesquisa))) {
+                this.conecta.desconecta();
                 return null;
             }
             try {
                 if (!this.conecta.getRs().first()) {
+                    this.conecta.desconecta();
                     return null;
                 }
                 String referencia = this.conecta.getRs().getString("referencia");
@@ -139,6 +147,7 @@ public class ProdutoControle {
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(null, "Erro ao ler o arquivo.");
         }
+        this.conecta.desconecta();
         return produto;
     }
 
@@ -146,24 +155,24 @@ public class ProdutoControle {
         String sql = "select \n"
                 + "  first 50 \n"
                 + "  PRREFERE as referencia\n"
-                + " ,MAX(PRDESCRI) as descricao\n"
-                + " ,MAX(EEPLQTB1) as preco\n"
-                + " ,MAX(PRCODBAR) as codigo_barra\n"
-                + " ,MAX(EET2PVD1) as preco_atacado\n"
-                + " ,MAX(PRQTDATA) as quantidade_atacado\n"
+                + " ,PRDESCRI as descricao\n"
+                + " ,EEPLQTB1 as preco\n"
+                + " ,PRCODBAR as codigo_barra\n"
+                + " ,EET2PVD1 as preco_atacado\n"
+                + " ,PRQTDATA as quantidade_atacado\n"
                 + "from \n"
-                + "  scea07 \n"
+                + "  scea01 \n"
                 + "inner join\n"
-                + "  scea01 on(PRREFERE=EEREFERE) \n"
+                + " lapa02 on(L2NOMEUS='GOLD')\n"
+                + "inner join\n"
+                + "  scea07 on(EEREFERE=PRREFERE and EECODEMP=L2DEFAUL) \n"
                 + "left outer join\n"
                 + "  scea09 on(RAREFERE=EEREFERE)\n"
                 + "where \n"
                 + "   PRDATCAN is null\n";
         sql += this.adicionarCondicao(pesquisa);
-        sql += "group by\n"
-                + "   referencia\n"
-                + "order by \n"
-                + "   descricao";
+        sql += " order by \n"
+                + " descricao";
         return sql;
     }
 
@@ -171,15 +180,17 @@ public class ProdutoControle {
         String sql = "select \n"
                 + "  first 1 \n"
                 + "  PRREFERE as referencia\n"
-                + " ,MAX(PRDESCRI) as descricao\n"
-                + " ,MAX(EEPLQTB1) as preco\n"
-                + " ,MAX(PRCODBAR) as codigo_barra\n"
-                + " ,MAX(EET2PVD1) as preco_atacado\n"
-                + " ,MAX(PRQTDATA) as quantidade_atacado\n"
+                + " ,PRDESCRI as descricao\n"
+                + " ,EEPLQTB1 as preco\n"
+                + " ,PRCODBAR as codigo_barra\n"
+                + " ,EET2PVD1 as preco_atacado\n"
+                + " ,PRQTDATA as quantidade_atacado\n"
                 + "from \n"
-                + "  scea07 \n"
+                + "  scea01 \n"
+                + "inner join\n"
+                + " lapa02 on(L2NOMEUS='GOLD')\n"
                 + "inner join \n"
-                + "  scea01 on(PRREFERE=EEREFERE) \n"
+                + "  scea07 on(EEREFERE=PRREFERE and EECODEMP=L2DEFAUL) \n"
                 + "left outer join\n"
                 + "  scea09 on(RAREFERE=EEREFERE)\n"
                 + "where \n"
@@ -189,9 +200,7 @@ public class ProdutoControle {
                 + "   PRREFERE='" + pesquisa + "' \n"
                 + "or PRCODBAR='" + pesquisa + "' \n"
                 + "or RAREFAUX='" + pesquisa + "' \n"
-                + ")\n"
-                + " group by \n"
-                + "   referencia\n";
+                + ")\n";
         return sql;
     }
 

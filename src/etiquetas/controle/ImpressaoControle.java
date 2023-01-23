@@ -1,9 +1,6 @@
 package etiquetas.controle;
 
 import java.io.ByteArrayInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import javax.print.Doc;
 import javax.print.DocFlavor;
