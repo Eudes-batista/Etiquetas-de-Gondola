@@ -33,12 +33,14 @@ public class ProdutoControle {
         try {
             Configuracao configuracao = arquivoControle.lerArquivo();
             if (configuracao.getHost() == null) {
+                System.out.println("Não foi possivel ler arquivo de configuração");
                 return Arrays.asList();
             }
             String host = configuracao.getHost(), caminho = configuracao.getCaminho();
             if (!this.conecta.conexao(host, caminho)) {
                 return Arrays.asList();
             }
+            System.out.println(this.montarSqlDePesquisaDeProduto(pesquisa));
             if (!conecta.executaSQL(this.montarSqlDePesquisaDeProduto(pesquisa))) {
                 this.conecta.desconecta();
                 return Arrays.asList();
@@ -63,9 +65,11 @@ public class ProdutoControle {
                 } while (this.conecta.getRs().next());
                 this.conecta.desconecta();
             } catch (SQLException ex) {
+                ex.printStackTrace();
                 JOptionPane.showMessageDialog(null, "Erro ao consultar.");
             }
         } catch (IOException ex) {
+            ex.printStackTrace();
             JOptionPane.showMessageDialog(null, "Erro ao ler o arquivo.");
         }
         this.conecta.desconecta();

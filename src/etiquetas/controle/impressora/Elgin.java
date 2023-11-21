@@ -3,12 +3,13 @@ package etiquetas.controle.impressora;
 import etiquetas.modelo.Produto;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.text.Normalizer;
 import java.util.Properties;
 
 public class Elgin implements Impressora {
 
     private static final String CONFIGURA_ALTURA_E_ESPACO_ETIQUETA = "Q120,24";
-    private static final String CONFIGURA_LARGURA_TOTAL_DA_ETIQUETA = "q240";
+    private static final String CONFIGURA_LARGURA_TOTAL_DA_ETIQUETA = "q880,8";
     private static final String CONFIGURA_PONTO_ORIGEM_IMPRESSAO = "R24,8";
     private static final String LIMPA_BUFFER_IMPRESSAO = "N";
     private static final String DENSIDADE_DA_CABECA_DE_IMPRESSAO = "D9"; // o valor vai de 0-15
@@ -44,13 +45,17 @@ public class Elgin implements Impressora {
         comandosGondolaSimples.append(VALOCIDADE_IMPRESSAO).append("\n");
         comandosGondolaSimples.append(CONFIGURA_ESPACO_ENTRE_AS_ETIQUETAS).append("\n");
         comandosGondolaSimples.append(INICIA_IMPRESSAO_A_PARTIR_DO_TOPO).append("\n");
-        comandosGondolaSimples.append("A").append(definirPosicaoDeColuna(colunaDescricao)).append(",").append(definirPosicaoDeLinha(linhaDescricao)).append(",").append("0").append(",").append(definirTamanhoDaFonte(fonteDescricao)).append(",1,1,N,\"").append(produto.getNome()).append("\"\n");
-        comandosGondolaSimples.append("A").append(definirPosicaoDeColuna(colunaCifrao)).append(",").append(definirPosicaoDeLinha(linhaCifrao)).append(",0,").append(definirTamanhoDaFonte(fonteCifrao)).append(",1,1,R,\"").append("R$").append("\"\n");
-        comandosGondolaSimples.append("A").append(definirPosicaoDeColuna(colunaValor)).append(",").append(definirPosicaoDeLinha(linhaValor)).append(",0,").append(definirTamanhoDaFonte(fonteValor)).append(",1,1,N,\"").append(produto.getPrecoVarejo()).append("\"\n");
+        comandosGondolaSimples.append("A").append(definirPosicaoDeColuna(colunaDescricao)).append(",").append(definirPosicaoDeLinha(linhaDescricao)).append(",").append("0").append(",")
+                .append(definirTamanhoDaFonte(fonteDescricao)).append(",2,2,N,\"").append(this.removerAspas(produto.getNome()).trim()).append("\"\n");
+        comandosGondolaSimples.append("A").append(definirPosicaoDeColuna(colunaCifrao)).append(",").append(definirPosicaoDeLinha(linhaCifrao)).append(",0,")
+                .append(definirTamanhoDaFonte(fonteCifrao)).append(",1,1,R,\"").append("R$").append("\"\n");
+        comandosGondolaSimples.append("A").append(definirPosicaoDeColuna(colunaValor)).append(",").append(definirPosicaoDeLinha(linhaValor)).append(",0,")
+                .append(definirTamanhoDaFonte(fonteValor)).append(",3,4,N,\"").append(produto.getPrecoVarejo()).append("\"\n");
         comandosGondolaSimples.append(colunaBarra).append(",").append(linhaBarra).append(",0,").append(tipoDeCodigoBarra)
                 .append(",3,5,60,B,\"")
                 .append(indentificacaoDoProduto).append("\"\n");
         comandosGondolaSimples.append("P").append(produto.getQuantidadeAserImpresso()).append("\n");
+        System.out.println("comandosGondolaSimples = " + comandosGondolaSimples);
         return comandosGondolaSimples.toString();
     }
 
@@ -63,7 +68,7 @@ public class Elgin implements Impressora {
         comandosGondolaAtacado.append(CONFIGURA_ESPACO_ENTRE_AS_ETIQUETAS).append("\n");
         comandosGondolaAtacado.append(INICIA_IMPRESSAO_A_PARTIR_DO_TOPO).append("\n");
 
-        comandosGondolaAtacado.append("A16,8,0,").append(definirTamanhoDaFonte("4")).append(",1,1,N,\"").append(produto.getNome()).append("\"\n");
+        comandosGondolaAtacado.append("A16,8,0,").append(definirTamanhoDaFonte("4")).append(",1,1,N,\"").append(this.removerAspas(produto.getNome())).append("\"\n");
         comandosGondolaAtacado.append("A16,50,0,").append(definirTamanhoDaFonte("3")).append(",1,1,R,\"").append("Varejo").append("\"\n");
         comandosGondolaAtacado.append("A16,100,0,").append(definirTamanhoDaFonte("4")).append(",1,1,N,\"").append("R$").append("\"\n");
         comandosGondolaAtacado.append("A80,124,0,").append(definirTamanhoDaFonte("5")).append(",1,1,N,\"").append(produto.getPrecoVarejo()).append("\"\n");
@@ -92,7 +97,7 @@ public class Elgin implements Impressora {
 
         comandosGondolaTresColunas.append("A").append(definirPosicaoDeColuna("0")).append(",")
                 .append(definirPosicaoDeLinha("8")).append(",").append("0").append(",")
-                .append(definirTamanhoDaFonte("1")).append(",1,1,N,\"").append(produto.getNome()).append("\"\n");
+                .append(definirTamanhoDaFonte("1")).append(",1,1,N,\"").append(this.removerAspas(produto.getNome())).append("\"\n");
 
         comandosGondolaTresColunas.append("A").append(definirPosicaoDeColuna("30")).append(",")
                 .append(definirPosicaoDeLinha("30")).append(",0,").append(definirTamanhoDaFonte("2"))
@@ -108,7 +113,7 @@ public class Elgin implements Impressora {
 /// segunda coluna
         comandosGondolaTresColunas.append("A").append(definirPosicaoDeColuna("268")).append(",")
                 .append(definirPosicaoDeLinha("8")).append(",").append("0").append(",")
-                .append(definirTamanhoDaFonte("1")).append(",1,1,N,\"").append(produto.getNome()).append("\"\n");
+                .append(definirTamanhoDaFonte("1")).append(",1,1,N,\"").append(this.removerAspas(produto.getNome())).append("\"\n");
 
         comandosGondolaTresColunas.append("A").append(definirPosicaoDeColuna("295")).append(",")
                 .append(definirPosicaoDeLinha("30")).append(",0,").append(definirTamanhoDaFonte("2"))
@@ -125,7 +130,7 @@ public class Elgin implements Impressora {
 /// terceira coluna
         comandosGondolaTresColunas.append("A").append(definirPosicaoDeColuna("540")).append(",")
                 .append(definirPosicaoDeLinha("8")).append(",").append("0").append(",")
-                .append(definirTamanhoDaFonte("1")).append(",1,1,N,\"").append(produto.getNome()).append("\"\n");
+                .append(definirTamanhoDaFonte("1")).append(",1,1,N,\"").append(this.removerAspas(produto.getNome())).append("\"\n");
 
         comandosGondolaTresColunas.append("A").append(definirPosicaoDeColuna("570")).append(",")
                 .append(definirPosicaoDeLinha("30")).append(",0,").append(definirTamanhoDaFonte("2"))
@@ -181,6 +186,11 @@ public class Elgin implements Impressora {
 
     private String definirModeloDeCodigoBarraEAN128() {
         return "1";
+    }
+    
+    private String removerAspas(String valor) {
+        String formatada = Normalizer.normalize(valor, Normalizer.Form.NFD).replaceAll("[\\u0300-\\u036f]", "");
+        return formatada;
     }
 
 }

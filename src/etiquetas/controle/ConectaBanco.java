@@ -52,6 +52,7 @@ public class ConectaBanco {
                 JOptionPane.showMessageDialog(null, "Não conseguiu conectar com o banco.");
             }
         } catch (SQLException ex) {
+            System.out.println("ex = " + ex);
             JOptionPane.showMessageDialog(null, ex.getMessage());
         }
         return false;

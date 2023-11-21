@@ -2,6 +2,7 @@ package etiquetas.controle;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import javax.print.Doc;
 import javax.print.DocFlavor;
 import javax.print.DocPrintJob;
@@ -21,13 +22,13 @@ public class ImpressaoControle {
         this.impressora = impressora;
     }
 
-    public void imprimirEtiqueta(String comprovante) throws PrintException {
+    public void imprimirEtiqueta(String comprovante) throws PrintException, UnsupportedEncodingException {
         PrintService service = this.detectaImpressoras();
         if (service == null) {
             return;
         }
         DocPrintJob docPrintJob = service.createPrintJob();
-        InputStream stream = new ByteArrayInputStream(comprovante.getBytes());
+        InputStream stream = new ByteArrayInputStream(comprovante.getBytes("UTF-8"));
         DocFlavor flavor = DocFlavor.INPUT_STREAM.AUTOSENSE;
         Doc doc = new SimpleDoc(stream, flavor, new HashDocAttributeSet());
         docPrintJob.print(doc, new HashPrintRequestAttributeSet());

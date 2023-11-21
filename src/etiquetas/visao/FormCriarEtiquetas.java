@@ -13,6 +13,7 @@ import etiquetas.modelo.Produto;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -137,9 +138,9 @@ public class FormCriarEtiquetas extends javax.swing.JFrame {
 
         editProduto.setFocusCycleRoot(true);
         editProduto.setFocusTraversalPolicyProvider(true);
-        editProduto.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                editProdutoActionPerformed(evt);
+        editProduto.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                editProdutoKeyPressed(evt);
             }
         });
 
@@ -226,7 +227,7 @@ public class FormCriarEtiquetas extends javax.swing.JFrame {
                         .addComponent(btLimpar, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 213, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 233, Short.MAX_VALUE)
                         .addComponent(comboTipoEtiqueta, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jComboBoxModeloImpressora, javax.swing.GroupLayout.PREFERRED_SIZE, 172, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -259,28 +260,12 @@ public class FormCriarEtiquetas extends javax.swing.JFrame {
                     .addComponent(btImprimirSimples)
                     .addComponent(btApagarSelecionado)
                     .addComponent(btLimpar))
-                .addContainerGap(18, Short.MAX_VALUE))
+                .addContainerGap(62, Short.MAX_VALUE))
         );
 
-        setSize(new java.awt.Dimension(794, 587));
+        setSize(new java.awt.Dimension(799, 608));
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
-
-    private void editProdutoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editProdutoActionPerformed
-        if (this.editProduto.getText().trim().isEmpty()) {
-            return;
-        }
-        Produto produtoEncontrado = this.produtoControle.buscarProduto(this.editProduto.getText());
-        if (produtoEncontrado == null) {
-            this.abrirPesquisaDeProduto();
-            return;
-        }
-        this.produto = produtoEncontrado;
-        jLabelProduto.setText(produto.getNome());
-        editQuantidade.requestFocus();
-        editQuantidade.setText("1");
-        editQuantidade.selectAll();
-    }//GEN-LAST:event_editProdutoActionPerformed
 
     private void abrirPesquisaDeProduto() {
         FormPesquisaProduto formPesquisaProduto = new FormPesquisaProduto(this, true);
@@ -323,6 +308,24 @@ public class FormCriarEtiquetas extends javax.swing.JFrame {
         desabledButtons();
     }//GEN-LAST:event_btLimparActionPerformed
 
+    private void editProdutoKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_editProdutoKeyPressed
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+            if (this.editProduto.getText().trim().isEmpty()) {
+                return;
+            }
+            final Produto produtoEncontrado = this.produtoControle.buscarProduto(this.editProduto.getText());
+            if (produtoEncontrado == null) {
+                this.abrirPesquisaDeProduto();
+                return;
+            }
+            this.produto = produtoEncontrado;
+            jLabelProduto.setText(produto.getNome());
+            editQuantidade.requestFocus();
+            editQuantidade.setText("1");
+            editQuantidade.selectAll();
+        }
+    }//GEN-LAST:event_editProdutoKeyPressed
+
     private void imprimir() {
         if (this.jComboBoxModeloImpressora.getSelectedIndex() == 0) {
             this.impressora = new Elgin();
@@ -362,10 +365,11 @@ public class FormCriarEtiquetas extends javax.swing.JFrame {
             String gerarEtiquetaGondolaTresColunas = impressora.gerarEtiquetaGondolaTresColunas(produto);
             try {
                 impressaoControle.imprimirEtiqueta(gerarEtiquetaGondolaTresColunas);
-            } catch (PrintException ex) {
+            } catch (PrintException | UnsupportedEncodingException ex) {
                 JOptionPane.showMessageDialog(null, "Erro de comunicação com a impressora\n verifique se ela está ligada.");
                 break;
             }
+
         }
         this.editProduto.requestFocus();
     }
@@ -378,7 +382,7 @@ public class FormCriarEtiquetas extends javax.swing.JFrame {
             String gerarEtiquetaGondolaSimples = impressora.gerarEtiquetaGondolaSimples(produto);
             try {
                 impressaoControle.imprimirEtiqueta(gerarEtiquetaGondolaSimples);
-            } catch (PrintException ex) {
+            } catch (PrintException | UnsupportedEncodingException ex) {
                 JOptionPane.showMessageDialog(null, "Erro de comunicação com a impressora\n verifique se ela está ligada.");
                 break;
             }
@@ -394,7 +398,7 @@ public class FormCriarEtiquetas extends javax.swing.JFrame {
             String gerarEtiquetaGondolaAtacado = impressora.gerarEtiquetaGondolaAtacado(produto);
             try {
                 impressaoControle.imprimirEtiqueta(gerarEtiquetaGondolaAtacado);
-            } catch (PrintException ex) {
+            } catch (PrintException | UnsupportedEncodingException ex) {
                 JOptionPane.showMessageDialog(null, "Erro de comunicação com a impressora\n verifique se ela está ligada.");
                 break;
             }
@@ -416,7 +420,7 @@ public class FormCriarEtiquetas extends javax.swing.JFrame {
         }
         enabledButtons();
         this.produto.setQuantidadeAserImpresso(this.editQuantidade.getText());
-        String nome = produto.getNome().length() > 25 ? produto.getNome().substring(0, 25) : produto.getNome();
+        String nome = produto.getNome().trim();
         this.produto.setNome(nome);
         this.produtos.add(produto);
         this.limparCampos();
@@ -457,7 +461,7 @@ public class FormCriarEtiquetas extends javax.swing.JFrame {
     private void limparCampos() {
         this.jLabelProduto.setText("");
         this.editProduto.setText("");
-        this.editQuantidade.setText("");        
+        this.editQuantidade.setText("");
     }
 
     public void setProduto(Produto produto) {
